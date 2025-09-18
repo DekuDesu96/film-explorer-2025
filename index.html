@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Film Explorer</h1>
+        <nav>
+            <label for="genreFilter">Filtra per Genere:</label>
+            <select id="genreFilter">
+                <option value="">Tutti</option>
+            </select>
+        </nav>
+    </header>
+    <main>
+        <section id="movies">
+            <h2>Film Popolari</h2>
+            <div id="moviesGrid" class="movies-grid"></div>
+        </section>
+        <section id="chatbot">
+            <h2>Chatbot AI (ChatGPT)</h2>
+            <div id="chatOutput" class="chat-output"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Chiedi qualcosa sui film...">
+                <button id="sendMessage">Invia</button>
+            </div>
+        </section>
+    </main>
+    <script src="script.js" defer></script>
+</body>
+</html>
