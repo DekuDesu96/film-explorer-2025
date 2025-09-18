@@ -1,6 +1,6 @@
 // API Keys (sostituisci con le tue)
-const TMDB_API_KEY = 'YOUR_TMDB_API_KEY'; // Ottieni da themoviedb.org
-const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY'; // Ottieni da platform.openai.com
+const TMDB_API_KEY = '9cb22d145717950bd470bb81f182910c'; // TMDB key
+const GEMINI_API_KEY = 'AIzaSyBegxpW00dXUw4wfjeZCXDhw_mbtkp_thg'; // La tua chiave da Google AI Studio (es. AIzaSy...)
 
 // Seleziona elementi DOM
 const genreFilter = document.getElementById('genreFilter');
@@ -15,6 +15,9 @@ let movies = []; // Array per film
 async function loadGenres() {
     try {
         const response = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=it-IT`);
+        if (!response.ok) {
+            throw new Error(`Errore TMDB Generi: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         genres = data.genres;
         genres.forEach(genre => {
@@ -32,6 +35,9 @@ async function loadGenres() {
 async function loadMovies() {
     try {
         const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=it-IT&page=1`);
+        if (!response.ok) {
+            throw new Error(`Errore TMDB Film: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         movies = data.results;
         displayMovies();
@@ -62,7 +68,7 @@ function displayMovies() {
 // Event listener per filtro genere
 genreFilter.addEventListener('change', displayMovies);
 
-// Funzione per inviare messaggio al chatbot
+// Funzione per inviare messaggio al chatbot (Gemini)
 async function sendMessageToChat() {
     const message = chatInput.value.trim();
     if (message === '') return;
@@ -78,20 +84,33 @@ async function sendMessageToChat() {
     chatOutput.scrollTop = chatOutput.scrollHeight;
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        console.log('Invio richiesta a Gemini con messaggio:', message);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: message }],
-                max_tokens: 150,
+                contents: [{
+                    parts: [{
+                        text: message
+                    }]
+                }],
+                generationConfig: {
+                    maxOutputTokens: 150,
+                    temperature: 0.7,
+                },
             }),
         });
+
+        console.log('Status risposta:', response.status, response.statusText);
+        if (!response.ok) {
+            throw new Error(`Errore Gemini: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
-        const aiReply = data.choices[0].message.content;
+        console.log('Dati JSON:', data);
+        const aiReply = data.candidates[0].content.parts[0].text;
 
         // Aggiungi risposta AI
         const aiMsg = document.createElement('div');
@@ -100,6 +119,7 @@ async function sendMessageToChat() {
         chatOutput.appendChild(aiMsg);
         chatOutput.scrollTop = chatOutput.scrollHeight;
     } catch (error) {
+        console.error('Errore Gemini:', error);
         const errorMsg = document.createElement('div');
         errorMsg.className = 'chat-message ai-message';
         errorMsg.textContent = 'Errore: Non riesco a rispondere. Controlla la chiave API.';
@@ -121,3 +141,4 @@ window.addEventListener('load', () => {
     loadGenres();
     loadMovies();
 });
+
