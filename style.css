@@ -151,4 +151,24 @@ nav {
     .chat-input-container {
         flex-direction: column;
     }
+} 
+
+.loading {
+    display: none; /* Nascosto di default */
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    margin: 1rem 0;
+}
+
+.loading.active {
+    display: block; /* Visibile quando attivo */
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0% { content: 'Caricamento'; }
+    33% { content: 'Caricamento.'; }
+    66% { content: 'Caricamento..'; }
+    100% { content: 'Caricamento...'; }
 }

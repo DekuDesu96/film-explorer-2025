@@ -8,6 +8,7 @@ const moviesGrid = document.getElementById('moviesGrid');
 const chatInput = document.getElementById('chatInput');
 const sendMessage = document.getElementById('sendMessage');
 const chatOutput = document.getElementById('chatOutput');
+const loading = document.getElementById('loading');
 let genres = []; // Array per generi
 let movies = []; // Array per film
 
@@ -68,7 +69,7 @@ function displayMovies() {
 // Event listener per filtro genere
 genreFilter.addEventListener('change', displayMovies);
 
-// Funzione per inviare messaggio al chatbot (Gemini)
+// Funzione per inviare messaggio al chatbot (Gemini con caricamento)
 async function sendMessageToChat() {
     const message = chatInput.value.trim();
     if (message === '') return;
@@ -79,6 +80,9 @@ async function sendMessageToChat() {
     userMsg.textContent = message;
     chatOutput.appendChild(userMsg);
     chatInput.value = '';
+
+    // Mostra caricamento
+    loading.classList.add('active');
 
     // Scrolla in basso
     chatOutput.scrollTop = chatOutput.scrollHeight;
@@ -117,13 +121,15 @@ async function sendMessageToChat() {
         aiMsg.className = 'chat-message ai-message';
         aiMsg.textContent = aiReply;
         chatOutput.appendChild(aiMsg);
-        chatOutput.scrollTop = chatOutput.scrollHeight;
     } catch (error) {
         console.error('Errore Gemini:', error);
         const errorMsg = document.createElement('div');
         errorMsg.className = 'chat-message ai-message';
         errorMsg.textContent = 'Errore: Non riesco a rispondere. Controlla la chiave API.';
         chatOutput.appendChild(errorMsg);
+    } finally {
+        // Nascondi caricamento
+        loading.classList.remove('active');
         chatOutput.scrollTop = chatOutput.scrollHeight;
     }
 }
@@ -141,4 +147,3 @@ window.addEventListener('load', () => {
     loadGenres();
     loadMovies();
 });
-
